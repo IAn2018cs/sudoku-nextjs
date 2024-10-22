@@ -8,7 +8,26 @@ export default function Home() {
   const [sudokuBoard, setSudokuBoard] = useState(null)
   const [solvedBoard, setSolvedBoard] = useState(null)
 
+  const handleLayerChange = (e) => {
+    const value = e.target.value
+    if (value === '' || /^[0-9]+$/.test(value)) {
+      setLayer(value)
+    }
+  }
+
+  const handleLevelChange = (e) => {
+    const value = e.target.value
+    if (value === '' || /^[0-9]+$/.test(value)) {
+      setLevel(value)
+    }
+  }
+
   const generateSudoku = async () => {
+    if (layer === '' || level === '') {
+      alert('请输入 layer 和 level')
+      return
+    }
+    
     const response = await fetch('/api/sudoku', {
       method: 'POST',
       headers: {
@@ -30,23 +49,24 @@ export default function Home() {
       <Head>
         <title>数独生成器</title>
         <link rel="icon" href="/favicon.ico" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
       <main className={styles.main}>
         <h1 className={styles.title}>数独生成器</h1>
 
-        <div className={styles.grid}>
+        <div className={styles.inputContainer}>
           <input
-            type="text"
+            type="number"
             value={layer}
-            onChange={(e) => setLayer(e.target.value)}
+            onChange={handleLayerChange}
             placeholder="输入 layer"
             className={styles.input}
           />
           <input
             type="number"
             value={level}
-            onChange={(e) => setLevel(e.target.value)}
+            onChange={handleLevelChange}
             placeholder="输入 level"
             className={styles.input}
           />
@@ -55,36 +75,38 @@ export default function Home() {
           </button>
         </div>
 
-        {sudokuBoard && (
-          <div className={styles.boardContainer}>
-            <h2>数独棋盘</h2>
-            <div className={styles.board}>
-              {sudokuBoard.map((cell, index) => (
-                <div
-                  key={index}
-                  className={`${styles.cell} ${
-                    !cell.can_edit ? styles.fixed : ''
-                  }`}
-                >
-                  {cell.can_edit ? '.' : cell.answer_num}
-                </div>
-              ))}
+        <div className={styles.boardsContainer}>
+          {sudokuBoard && (
+            <div className={styles.boardContainer}>
+              <h2>数独棋盘</h2>
+              <div className={styles.board}>
+                {sudokuBoard.map((cell, index) => (
+                  <div
+                    key={index}
+                    className={`${styles.cell} ${
+                      !cell.can_edit ? styles.fixed : ''
+                    }`}
+                  >
+                    {cell.can_edit ? '.' : cell.answer_num}
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {solvedBoard && (
-          <div className={styles.boardContainer}>
-            <h2>解出的数独棋盘</h2>
-            <div className={styles.board}>
-              {solvedBoard.map((cell, index) => (
-                <div key={index} className={styles.cell}>
-                  {cell.answer_num}
-                </div>
-              ))}
+          {solvedBoard && (
+            <div className={styles.boardContainer}>
+              <h2>解出的数独棋盘</h2>
+              <div className={styles.board}>
+                {solvedBoard.map((cell, index) => (
+                  <div key={index} className={styles.cell}>
+                    {cell.answer_num}
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </main>
     </div>
   )
